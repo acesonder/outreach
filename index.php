@@ -466,121 +466,84 @@ try {
         </div>
     </div>
 
-    <!-- Registration Modal -->
+    <!-- Register Modal -->
     <div id="registerModal" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Get Help - Register for OUTSINC</h3>
-                <button type="button" class="modal-close">&times;</button>
+                <h3>Register for OUTSINC</h3>
+                <button class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <form id="registerForm" method="POST" action="register.php">
-                <div class="row">
-                    <div class="col-6">
-                        <div class="form-group">
-                            <label for="reg_first_name" class="form-label">First Name *</label>
-                            <input type="text" id="reg_first_name" name="first_name" class="form-control" required>
-                        </div>
+            <form action="register.php" method="POST" data-validate>
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label for="first_name" class="form-label">First Name</label>
+                        <input type="text" id="first_name" name="first_name" class="form-input" required>
                     </div>
-                    <div class="col-6">
-                        <div class="form-group">
-                            <label for="reg_last_name" class="form-label">Last Name *</label>
-                            <input type="text" id="reg_last_name" name="last_name" class="form-control" required>
-                        </div>
+                    
+                    <div class="form-group">
+                        <label for="last_name" class="form-label">Last Name</label>
+                        <input type="text" id="last_name" name="last_name" class="form-input" required>
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="reg_dob" class="form-label">Date of Birth *</label>
-                    <input type="date" id="reg_dob" name="date_of_birth" class="form-control" required>
-                </div>
-                
-                <div class="row">
-                    <div class="col-6">
-                        <div class="form-group">
-                            <label for="reg_email" class="form-label">Email</label>
-                            <input type="email" id="reg_email" name="email" class="form-control">
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="form-group">
-                            <label for="reg_phone" class="form-label">Phone</label>
-                            <input type="tel" id="reg_phone" name="phone" class="form-control">
-                        </div>
-                    </div>
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-input" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="reg_security_question" class="form-label">Security Question *</label>
-                    <select id="reg_security_question" name="security_question_id" class="form-control form-select" required>
+                    <label for="phone" class="form-label">Phone Number (Optional)</label>
+                    <input type="tel" id="phone" name="phone" class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="date_of_birth" class="form-label">Date of Birth</label>
+                    <input type="date" id="date_of_birth" name="date_of_birth" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="security_question" class="form-label">Security Question</label>
+                    <select id="security_question" name="security_question" class="form-select" required>
                         <option value="">Choose a security question...</option>
-                        <?php
-                        try {
-                            $stmt = $pdo->prepare("SELECT question_id, question_text FROM security_questions WHERE is_active = 1 ORDER BY question_id");
-                            $stmt->execute();
-                            while ($question = $stmt->fetch()) {
-                                echo '<option value="' . $question['question_id'] . '">' . htmlspecialchars($question['question_text']) . '</option>';
-                            }
-                        } catch (PDOException $e) {
-                            // Fallback questions
-                            $fallbackQuestions = [
-                                "What was the name of your first pet?",
-                                "What street did you grow up on?",
-                                "What city were you born in?",
-                                "What is your favorite color?",
-                                "What month were you born?"
-                            ];
-                            foreach ($fallbackQuestions as $i => $question) {
-                                echo '<option value="' . ($i + 1) . '">' . htmlspecialchars($question) . '</option>';
-                            }
-                        }
-                        ?>
+                        <?php foreach ($security_questions as $question): ?>
+                        <option value="<?php echo sanitizeOutput($question); ?>">
+                            <?php echo sanitizeOutput($question); ?>
+                        </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 
                 <div class="form-group">
-                    <label for="reg_security_answer" class="form-label">Security Answer *</label>
-                    <input type="text" id="reg_security_answer" name="security_answer" class="form-control" required>
+                    <label for="security_answer" class="form-label">Security Answer</label>
+                    <input type="text" id="security_answer" name="security_answer" class="form-input" required>
                 </div>
                 
-                <div class="row">
-                    <div class="col-6">
-                        <div class="form-group">
-                            <label for="reg_password" class="form-label">Password *</label>
-                            <input type="password" id="reg_password" name="password" class="form-control" required>
-                            <div id="password-strength" class="mt-1"></div>
-                        </div>
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" id="password" name="password" class="form-input" required>
                     </div>
-                    <div class="col-6">
-                        <div class="form-group">
-                            <label for="reg_confirm_password" class="form-label">Confirm Password *</label>
-                            <input type="password" id="reg_confirm_password" name="confirm_password" class="form-control" required>
-                        </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm_password" class="form-label">Confirm Password</label>
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-input" required>
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <div class="checkbox-wrapper">
-                        <input type="checkbox" id="terms_agreement" name="terms_agreement" class="checkbox" required>
-                        <label for="terms_agreement">
-                            I agree to the <a href="terms.php" target="_blank">Terms of Service</a> and 
-                            <a href="privacy.php" target="_blank">Privacy Policy</a> *
-                        </label>
-                    </div>
+                    <label style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                        <input type="checkbox" name="terms_consent" required>
+                        I agree to the <a href="#" target="_blank">Terms of Service</a> and 
+                        <a href="#" target="_blank">Privacy Policy</a>
+                    </label>
                 </div>
                 
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-user-plus"></i>
-                        Create Account
+                    <button type="submit" class="btn btn-primary btn-large" style="width: 100%;">
+                        <i class="fas fa-user-plus"></i> Create Account
                     </button>
-                </div>
-                
-                <div class="text-center">
-                    <p>Already have an account? 
-                        <a href="#" onclick="OUTSINC.closeModal('registerModal'); OUTSINC.openModal('loginModal');">
-                            Login here
-                        </a>
-                    </p>
                 </div>
             </form>
         </div>
@@ -590,158 +553,28 @@ try {
     <div id="forgotPasswordModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Reset Password</h3>
-                <button type="button" class="modal-close">&times;</button>
+                <h3>Reset Password</h3>
+                <button class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <form id="forgotPasswordForm" method="POST" action="forgot-password.php">
+            <form action="forgot-password.php" method="POST" data-validate>
                 <div class="form-group">
                     <label for="forgot_username" class="form-label">Username</label>
-                    <input type="text" id="forgot_username" name="username" class="form-control" required>
+                    <input type="text" id="forgot_username" name="username" class="form-input" required>
                 </div>
+                
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-key"></i>
-                        Reset Password
+                    <button type="submit" class="btn btn-primary btn-large" style="width: 100%;">
+                        <i class="fas fa-key"></i> Get Security Question
                     </button>
-                </div>
-                <div class="text-center">
-                    <a href="#" onclick="OUTSINC.closeModal('forgotPasswordModal'); OUTSINC.openModal('loginModal');">
-                        Back to Login
-                    </a>
                 </div>
             </form>
         </div>
     </div>
+    <?php endif; ?>
 
     <!-- JavaScript -->
     <script src="assets/js/main.js"></script>
-    
-    <!-- Additional CSS for theme toggle -->
-    <style>
-        .theme-switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 30px;
-            margin-left: 1rem;
-        }
-
-        .theme-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--neu-light);
-            border-radius: 30px;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 5px;
-            box-shadow: 
-                inset 4px 4px 8px var(--neu-shadow-dark),
-                inset -4px -4px 8px var(--neu-shadow-light);
-        }
-
-        .slider i {
-            font-size: 14px;
-            transition: 0.3s;
-        }
-
-        .slider .fa-sun {
-            color: #FFD700;
-        }
-
-        .slider .fa-moon {
-            color: #4A5568;
-        }
-
-        input:checked + .slider {
-            background: var(--primary-blue);
-        }
-
-        input:checked + .slider .fa-sun {
-            opacity: 0.3;
-        }
-
-        input:checked + .slider .fa-moon {
-            opacity: 1;
-            color: #E2E8F0;
-        }
-
-        input:not(:checked) + .slider .fa-sun {
-            opacity: 1;
-        }
-
-        input:not(:checked) + .slider .fa-moon {
-            opacity: 0.3;
-        }
-
-        .alert-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 3000;
-            max-width: 400px;
-        }
-
-        .dropdown {
-            position: relative;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-sm);
-            list-style: none;
-            margin: 0;
-            min-width: 200px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all var(--transition-fast);
-        }
-
-        .dropdown:hover .dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .dropdown-link {
-            display: block;
-            padding: var(--spacing-sm) var(--spacing-md);
-            border-radius: var(--radius-md);
-            transition: all var(--transition-fast);
-        }
-
-        .dropdown-link:hover {
-            background: var(--glass-bg);
-        }
-
-        .dropdown-divider {
-            height: 1px;
-            background: var(--glass-border);
-            margin: var(--spacing-sm) 0;
-            border: none;
-        }
-
-        .w-100 {
-            width: 100%;
-        }
-    </style>
 </body>
 </html>
