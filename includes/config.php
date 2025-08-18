@@ -1,226 +1,141 @@
 <?php
 /**
  * OUTSINC Configuration File
- * Application settings and constants
+ * Database connection settings and application constants
  */
 
-// Start session if not already started
+// Database connection settings for MAMP
+define('DB_HOST', 'localhost');
+define('DB_PORT', '8889');
+define('DB_NAME', 'outsinc_db');
+define('DB_USER', 'root');
+define('DB_PASS', 'root');
+define('DB_CHARSET', 'utf8mb4');
+
+// Application settings
+define('SITE_NAME', 'OUTSINC');
+define('SITE_URL', 'http://localhost:8000');
+define('UPLOAD_PATH', __DIR__ . '/../uploads/');
+define('MAX_FILE_SIZE', 10485760); // 10MB in bytes
+
+// Session settings
+define('SESSION_TIMEOUT', 3600); // 1 hour
+define('REMEMBER_ME_DURATION', 2592000); // 30 days
+define('MAX_LOGIN_ATTEMPTS', 5);
+define('LOCKOUT_DURATION', 900); // 15 minutes
+
+// Security settings
+define('ENCRYPTION_KEY', 'outsinc-secret-key-change-in-production');
+define('PASSWORD_MIN_LENGTH', 8);
+
+// Error reporting (disable in production)
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Start session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Application constants
-define('APP_NAME', 'OUTSINC');
-define('APP_VERSION', '1.0.0');
-define('APP_URL', 'http://localhost');  // Update for production
-
-// Security settings
-define('PASSWORD_MIN_LENGTH', 8);
-define('SESSION_TIMEOUT', 3600); // 1 hour in seconds
-define('MAX_LOGIN_ATTEMPTS', 5);
-define('LOGIN_LOCKOUT_TIME', 900); // 15 minutes
-
-// File upload settings
-define('UPLOAD_MAX_SIZE', 5242880); // 5MB in bytes
-define('UPLOAD_PATH', 'uploads/');
-define('ALLOWED_FILE_TYPES', ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'gif']);
-
-// Platform information
-$platforms = [
-    'outsinc' => [
-        'name' => 'OUTSINC',
-        'description' => 'Central hub for outreach and case management',
-        'color' => '#003366',
-        'icon' => 'fas fa-home'
-    ],
-    'dcide' => [
-        'name' => 'DCIDE',
-        'description' => 'Case management and progress tracking',
-        'color' => '#43A047',
-        'icon' => 'fas fa-clipboard-check'
-    ],
-    'link' => [
-        'name' => 'LINK',
-        'description' => 'Referral network and community connections',
-        'color' => '#3F51B5',
-        'icon' => 'fas fa-link'
-    ],
-    'bles' => [
-        'name' => 'BLES',
-        'description' => 'Addiction recovery and support platform',
-        'color' => '#FB8C00',
-        'icon' => 'fas fa-heart'
-    ],
-    'ask' => [
-        'name' => 'ASK',
-        'description' => 'Real-time chat and support system',
-        'color' => '#29B6F6',
-        'icon' => 'fas fa-comments'
-    ],
-    'ethan' => [
-        'name' => 'ETHAN',
-        'description' => 'Analytics and outcome tracking',
-        'color' => '#FF6F61',
-        'icon' => 'fas fa-chart-line'
-    ],
-    'footprint' => [
-        'name' => 'FOOTPRINT',
-        'description' => 'Impact tracking and sustainability',
-        'color' => '#8D6E63',
-        'icon' => 'fas fa-shoe-prints'
-    ]
-];
-
-// Security questions for password recovery
-$security_questions = [
-    "What was the name of your first pet?",
-    "What was the make of your first car?",
-    "What elementary school did you attend?",
-    "What is the name of the town where you were born?",
-    "What was your maternal grandmother's maiden name?",
-    "What was the name of your first employer?",
-    "What was your childhood nickname?",
-    "What is the name of your favorite childhood friend?",
-    "What was the street name you lived on in third grade?",
-    "What was your favorite food as a child?"
-];
-
-/**
- * Sanitize output for HTML display
- * @param string $data Raw data
- * @return string Sanitized data
- */
-function sanitizeOutput($data) {
-    return htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
+// Database connection
+try {
+    $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
+    $pdo = new PDO($dsn, DB_USER, DB_PASS, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES => false,
+    ]);
+} catch (PDOException $e) {
+    // In production, log this error instead of displaying it
+    die("Database connection failed: " . $e->getMessage());
 }
 
-/**
- * Generate a random username
- * @param string $firstName First name
- * @param string $lastName Last name
- * @return string Generated username
- */
-function generateUsername($firstName, $lastName) {
-    $firstPart = strtoupper(substr($firstName, 0, 3));
-    $lastPart = strtoupper(substr($lastName, 0, 3));
-    $numbers = sprintf("%04d", rand(1000, 9999));
-    return $firstPart . $lastPart . $numbers;
+// Helper functions
+function sanitizeInput($input) {
+    return htmlspecialchars(strip_tags(trim($input)), ENT_QUOTES, 'UTF-8');
 }
 
-/**
- * Validate password strength
- * @param string $password Password to validate
- * @return array Validation result with status and message
- */
-function validatePassword($password) {
-    $errors = [];
-    
-    if (strlen($password) < PASSWORD_MIN_LENGTH) {
-        $errors[] = "Password must be at least " . PASSWORD_MIN_LENGTH . " characters long";
+function generateCSRFToken() {
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
-    
-    if (!preg_match('/[0-9]/', $password)) {
-        $errors[] = "Password must contain at least one number";
-    }
-    
-    if (!preg_match('/[^a-zA-Z0-9]/', $password)) {
-        $errors[] = "Password must contain at least one special character";
-    }
-    
-    return [
-        'valid' => empty($errors),
-        'errors' => $errors
-    ];
+    return $_SESSION['csrf_token'];
 }
 
-/**
- * Format date for display
- * @param string $date Date string
- * @param string $format Output format
- * @return string Formatted date
- */
-function formatDate($date, $format = 'M j, Y') {
-    if (empty($date) || $date === '0000-00-00') {
-        return 'Not set';
+function validateCSRFToken($token) {
+    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+}
+
+function redirectTo($url, $message = null) {
+    if ($message) {
+        $_SESSION['flash_message'] = $message;
     }
-    return date($format, strtotime($date));
+    header("Location: $url");
+    exit;
 }
 
-/**
- * Get user role display name
- * @param string $role User role
- * @return string Display name
- */
-function getRoleDisplayName($role) {
-    $roles = [
-        'client' => 'Client',
-        'staff' => 'Staff Member',
-        'outreach' => 'Outreach Worker',
-        'admin' => 'Administrator',
-        'service_provider' => 'Service Provider'
-    ];
+function getFlashMessage() {
+    if (isset($_SESSION['flash_message'])) {
+        $message = $_SESSION['flash_message'];
+        unset($_SESSION['flash_message']);
+        return $message;
+    }
+    return null;
+}
+
+function hashPassword($password) {
+    return password_hash($password, PASSWORD_ARGON2ID);
+}
+
+function verifyPassword($password, $hash) {
+    return password_verify($password, $hash);
+}
+
+function generateUsername($firstName, $lastName, $dateOfBirth) {
+    $firstInitial = strtoupper(substr($firstName, 0, 1));
+    $lastInitial = strtoupper(substr($lastName, 0, 1));
+    $birthYear = date('y', strtotime($dateOfBirth));
+    $random = str_pad(mt_rand(1, 999), 3, '0', STR_PAD_LEFT);
     
-    return $roles[$role] ?? 'Unknown Role';
+    return $firstInitial . $lastInitial . $birthYear . $random;
 }
 
-/**
- * Log user activity for audit trail
- * @param int $userId User ID
- * @param string $action Action performed
- * @param string $tableName Table affected
- * @param int $recordId Record ID affected
- * @param array $oldValues Old values (for updates)
- * @param array $newValues New values
- */
-function logActivity($userId, $action, $tableName = null, $recordId = null, $oldValues = null, $newValues = null) {
+function logActivity($userId, $action, $details = [], $pdo = null) {
+    global $pdo as $globalPdo;
+    $db = $pdo ?: $globalPdo;
+    
     try {
-        require_once 'database.php';
-        
-        $query = "INSERT INTO audit_log (user_id, action, table_name, record_id, old_values, new_values, ip_address, user_agent) 
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        
-        $params = [
+        $stmt = $db->prepare("
+            INSERT INTO audit_log (user_id, action, details, ip_address, user_agent, created_at) 
+            VALUES (?, ?, ?, ?, ?, NOW())
+        ");
+        $stmt->execute([
             $userId,
             $action,
-            $tableName,
-            $recordId,
-            $oldValues ? json_encode($oldValues) : null,
-            $newValues ? json_encode($newValues) : null,
+            json_encode($details),
             $_SERVER['REMOTE_ADDR'] ?? 'unknown',
             $_SERVER['HTTP_USER_AGENT'] ?? 'unknown'
-        ];
-        
-        executeQuery($query, $params, 'ississss');
-        
+        ]);
     } catch (Exception $e) {
         error_log("Failed to log activity: " . $e->getMessage());
     }
 }
 
-/**
- * Check if user has permission for specific action
- * @param string $userRole User's role
- * @param string $action Action to check
- * @param string $resource Resource being accessed
- * @return bool True if permitted
- */
-function hasPermission($userRole, $action, $resource = null) {
-    $permissions = [
-        'admin' => ['*'], // Admin has all permissions
-        'staff' => ['view_cases', 'create_cases', 'edit_cases', 'view_clients', 'create_appointments', 'send_messages'],
-        'outreach' => ['view_cases', 'create_cases', 'view_clients', 'create_appointments'],
-        'service_provider' => ['view_assigned_cases', 'view_referrals'],
-        'client' => ['view_own_profile', 'edit_own_profile', 'view_own_cases', 'view_messages']
-    ];
-    
-    $userPermissions = $permissions[$userRole] ?? [];
-    
-    return in_array('*', $userPermissions) || in_array($action, $userPermissions);
+function jsonResponse($data, $statusCode = 200) {
+    http_response_code($statusCode);
+    header('Content-Type: application/json');
+    echo json_encode($data);
+    exit;
 }
 
-// Error reporting for development - disable in production
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('log_errors', 1);
-ini_set('error_log', 'error.log');
+function timeAgo($datetime) {
+    $time = time() - strtotime($datetime);
+    
+    if ($time < 60) return 'just now';
+    if ($time < 3600) return floor($time/60) . ' minutes ago';
+    if ($time < 86400) return floor($time/3600) . ' hours ago';
+    if ($time < 2592000) return floor($time/86400) . ' days ago';
+    
+    return date('M j, Y', strtotime($datetime));
+}
 ?>

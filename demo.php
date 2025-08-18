@@ -1,37 +1,27 @@
 <?php
 /**
- * OUTSINC - Outreach Someone In Need of Change
- * Main Landing Page
+ * OUTSINC Demo Mode - Shows the interface without database
  */
 
-require_once 'includes/config.php';
+// Demo mode settings
+$demoMode = true;
+$settings = [
+    'site_name' => 'OUTSINC',
+    'welcome_message' => 'Welcome to OUTSINC - Outreach Someone In Need of Change',
+    'enable_registration' => 'true'
+];
 
-// Start session
-startSecureSession();
+$currentUser = null;
+$flashMessage = null;
 
-// Get current user if logged in
-$currentUser = getCurrentUser();
-
-// Get flash message
-$flashMessage = getFlashMessage();
-
-// Get system settings
-try {
-    $pdo = getDbConnection();
-    $stmt = $pdo->prepare("SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('site_name', 'welcome_message', 'enable_registration')");
-    $stmt->execute();
-    $settings = [];
-    while ($row = $stmt->fetch()) {
-        $settings[$row['setting_key']] = $row['setting_value'];
-    }
-} catch (PDOException $e) {
-    error_log("Error fetching settings: " . $e->getMessage());
-    $settings = [
-        'site_name' => 'OUTSINC',
-        'welcome_message' => 'Welcome to OUTSINC - Outreach Someone In Need of Change',
-        'enable_registration' => 'true'
-    ];
-}
+// Mock security questions for demo
+$mockSecurityQuestions = [
+    ['question_id' => 1, 'question_text' => 'What was the name of your first pet?'],
+    ['question_id' => 2, 'question_text' => 'What street did you grow up on?'],
+    ['question_id' => 3, 'question_text' => 'What city were you born in?'],
+    ['question_id' => 4, 'question_text' => 'What is your favorite color?'],
+    ['question_id' => 5, 'question_text' => 'What month were you born?']
+];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -42,26 +32,25 @@ try {
     <meta name="keywords" content="outreach, support, case management, addiction recovery, housing assistance, mental health">
     <title><?php echo htmlspecialchars($settings['site_name']); ?> - Outreach Someone In Need of Change</title>
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
-    
     <!-- CSS -->
     <link rel="stylesheet" href="assets/css/styles.css">
     
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Preload critical resources -->
-    <link rel="preload" href="assets/css/styles.css" as="style">
-    <link rel="preload" href="assets/js/main.js" as="script">
 </head>
 <body>
+    <!-- Demo Mode Notice -->
+    <div style="background: #FFC107; color: #000; text-align: center; padding: 10px; font-weight: bold;">
+        <i class="fas fa-exclamation-triangle"></i>
+        DEMO MODE - Database not connected. This shows the interface design and functionality.
+    </div>
+
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
             <div class="row items-center justify-between">
                 <div class="col-auto">
-                    <a href="index.php" class="navbar-brand">
+                    <a href="demo.php" class="navbar-brand">
                         <i class="fas fa-hands-helping"></i>
                         <?php echo htmlspecialchars($settings['site_name']); ?>
                     </a>
@@ -75,25 +64,8 @@ try {
                         <li><a href="#services" class="nav-link">Services</a></li>
                         <li><a href="#contact" class="nav-link">Contact</a></li>
                         
-                        <?php if ($currentUser): ?>
-                            <li class="dropdown">
-                                <a href="#" class="nav-link dropdown-toggle">
-                                    <i class="fas fa-user"></i>
-                                    <?php echo htmlspecialchars($currentUser['first_name']); ?>
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="dashboard.php" class="dropdown-link">Dashboard</a></li>
-                                    <li><a href="profile.php" class="dropdown-link">Profile</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a href="logout.php" class="dropdown-link">Logout</a></li>
-                                </ul>
-                            </li>
-                        <?php else: ?>
-                            <li><a href="#" class="btn btn-secondary btn-sm" onclick="OUTSINC.openModal('loginModal')">Login</a></li>
-                            <?php if ($settings['enable_registration'] === 'true'): ?>
-                                <li><a href="#" class="btn btn-primary btn-sm" onclick="OUTSINC.openModal('registerModal')">Get Help</a></li>
-                            <?php endif; ?>
-                        <?php endif; ?>
+                        <li><a href="#" class="btn btn-secondary btn-sm" onclick="OUTSINC.openModal('loginModal')">Login</a></li>
+                        <li><a href="#" class="btn btn-primary btn-sm" onclick="OUTSINC.openModal('registerModal')">Get Help</a></li>
                         
                         <li>
                             <label class="theme-switch">
@@ -110,15 +82,6 @@ try {
         </div>
     </nav>
 
-    <!-- Alert Container -->
-    <div id="alert-container" class="alert-container">
-        <?php if ($flashMessage): ?>
-            <div class="alert alert-<?php echo $flashMessage['type']; ?>">
-                <?php echo htmlspecialchars($flashMessage['message']); ?>
-            </div>
-        <?php endif; ?>
-    </div>
-
     <!-- Hero Section -->
     <section id="home" class="hero">
         <div class="container">
@@ -132,21 +95,14 @@ try {
                     case management, and resources for lasting positive change.
                 </p>
                 <div class="fade-in-up" style="animation-delay: 0.4s;">
-                    <?php if (!$currentUser): ?>
-                        <a href="#" class="btn btn-primary btn-lg" onclick="OUTSINC.openModal('registerModal')">
-                            <i class="fas fa-user-plus"></i>
-                            Get Started Today
-                        </a>
-                        <a href="#about" class="btn btn-secondary btn-lg">
-                            <i class="fas fa-info-circle"></i>
-                            Learn More
-                        </a>
-                    <?php else: ?>
-                        <a href="dashboard.php" class="btn btn-primary btn-lg">
-                            <i class="fas fa-tachometer-alt"></i>
-                            Go to Dashboard
-                        </a>
-                    <?php endif; ?>
+                    <a href="#" class="btn btn-primary btn-lg" onclick="OUTSINC.openModal('registerModal')">
+                        <i class="fas fa-user-plus"></i>
+                        Get Started Today
+                    </a>
+                    <a href="#about" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-info-circle"></i>
+                        Learn More
+                    </a>
                 </div>
             </div>
         </div>
@@ -228,7 +184,7 @@ try {
                     <h4>DCIDE</h4>
                     <p><strong>Driving Change Inspiring Development Everywhere</strong></p>
                     <p>Comprehensive case management system for tracking client progress, setting goals, and coordinating care across multiple services.</p>
-                    <a href="dcide.php" class="btn btn-success">Learn More</a>
+                    <a href="#" class="btn btn-success">Learn More</a>
                 </div>
                 
                 <div class="platform-card link animate-on-scroll">
@@ -238,7 +194,7 @@ try {
                     <h4>LINK</h4>
                     <p><strong>Lead Individuals to New Knowledge</strong></p>
                     <p>Smart referral engine connecting clients to community resources, treatment programs, and support services.</p>
-                    <a href="link.php" class="btn btn-primary" style="background: var(--link-indigo);">Learn More</a>
+                    <a href="#" class="btn btn-primary" style="background: var(--link-indigo);">Learn More</a>
                 </div>
                 
                 <div class="platform-card bles animate-on-scroll">
@@ -248,7 +204,7 @@ try {
                     <h4>BLES</h4>
                     <p><strong>Breaking Life's Endless Struggles</strong></p>
                     <p>Specialized intake and advocacy platform for addiction recovery, helping access treatment beds and support programs.</p>
-                    <a href="bles.php" class="btn btn-warning">Learn More</a>
+                    <a href="#" class="btn btn-warning">Learn More</a>
                 </div>
                 
                 <div class="platform-card ask animate-on-scroll">
@@ -258,7 +214,7 @@ try {
                     <h4>ASK</h4>
                     <p><strong>Access Support Knowledge</strong></p>
                     <p>Real-time messaging and crisis support platform providing immediate assistance and resource navigation.</p>
-                    <a href="ask.php" class="btn btn-primary" style="background: var(--ask-blue);">Learn More</a>
+                    <a href="#" class="btn btn-primary" style="background: var(--ask-blue);">Learn More</a>
                 </div>
                 
                 <div class="platform-card ethan animate-on-scroll">
@@ -268,7 +224,7 @@ try {
                     <h4>ETHAN</h4>
                     <p><strong>Everything That's Human And Normal</strong></p>
                     <p>Wellness and personal development platform offering learning tools, reflection, and growth tracking.</p>
-                    <a href="ethan.php" class="btn btn-primary" style="background: var(--ethan-coral);">Learn More</a>
+                    <a href="#" class="btn btn-primary" style="background: var(--ethan-coral);">Learn More</a>
                 </div>
                 
                 <div class="platform-card footprint animate-on-scroll">
@@ -278,7 +234,7 @@ try {
                     <h4>FOOTPRINT</h4>
                     <p><strong>Field Operations & Tracking</strong></p>
                     <p>Outreach logging and incident reporting system for tracking field activities and community impact.</p>
-                    <a href="footprint.php" class="btn btn-primary" style="background: var(--footprint-brown);">Learn More</a>
+                    <a href="#" class="btn btn-primary" style="background: var(--footprint-brown);">Learn More</a>
                 </div>
             </div>
         </div>
@@ -387,7 +343,11 @@ try {
                             </div>
                             <div class="col-6">
                                 <h4>Quick Contact</h4>
-                                <form id="contactForm" method="POST" action="contact.php">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    Demo mode - Form submissions are not processed
+                                </div>
+                                <form>
                                     <div class="form-group">
                                         <label for="contact_name" class="form-label">Name</label>
                                         <input type="text" id="contact_name" name="name" class="form-control" required>
@@ -400,7 +360,7 @@ try {
                                         <label for="contact_message" class="form-label">Message</label>
                                         <textarea id="contact_message" name="message" class="form-control" rows="4" required></textarea>
                                     </div>
-                                    <button type="submit" class="btn btn-primary">
+                                    <button type="button" class="btn btn-primary" onclick="OUTSINC.showAlert('Demo mode - Message not sent', 'info')">
                                         <i class="fas fa-paper-plane"></i>
                                         Send Message
                                     </button>
@@ -420,8 +380,8 @@ try {
                 <div class="col-12 text-center">
                     <p>&copy; <?php echo date('Y'); ?> <?php echo htmlspecialchars($settings['site_name']); ?>. All rights reserved.</p>
                     <p>
-                        <a href="privacy.php" style="color: var(--primary-teal);">Privacy Policy</a> |
-                        <a href="terms.php" style="color: var(--primary-teal);">Terms of Service</a> |
+                        <a href="#" style="color: var(--primary-teal);">Privacy Policy</a> |
+                        <a href="#" style="color: var(--primary-teal);">Terms of Service</a> |
                         <a href="#contact" style="color: var(--primary-teal);">Contact Us</a>
                     </p>
                 </div>
@@ -436,145 +396,189 @@ try {
                 <h3 class="modal-title">Login to OUTSINC</h3>
                 <button type="button" class="modal-close">&times;</button>
             </div>
-            <form id="loginForm" method="POST" action="login.php">
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                Demo mode - Login functionality is not available
+            </div>
+            <form>
                 <div class="form-group">
                     <label for="login_username" class="form-label">Username</label>
-                    <input type="text" id="login_username" name="username" class="form-control" required>
+                    <input type="text" id="login_username" name="username" class="form-control" value="JOHNDOE9001" readonly>
                 </div>
                 <div class="form-group">
                     <label for="login_password" class="form-label">Password</label>
-                    <input type="password" id="login_password" name="password" class="form-control" required>
+                    <input type="password" id="login_password" name="password" class="form-control" value="••••••••" readonly>
                 </div>
                 <div class="form-group">
-                    <div class="checkbox-wrapper">
-                        <input type="checkbox" id="remember_me" name="remember_me" class="checkbox">
-                        <label for="remember_me">Remember me</label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary w-100">
+                    <button type="button" class="btn btn-primary w-100" onclick="OUTSINC.showAlert('Demo mode - Login not available', 'info')">
                         <i class="fas fa-sign-in-alt"></i>
-                        Login
+                        Login (Demo)
                     </button>
-                </div>
-                <div class="text-center">
-                    <a href="#" onclick="OUTSINC.closeModal('loginModal'); OUTSINC.openModal('forgotPasswordModal');">
-                        Forgot your password?
-                    </a>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Register Modal -->
+    <!-- Registration Modal -->
     <div id="registerModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">
-                <h3>Register for OUTSINC</h3>
-                <button class="modal-close">
-                    <i class="fas fa-times"></i>
-                </button>
+                <h3 class="modal-title">Get Help - Register for OUTSINC</h3>
+                <button type="button" class="modal-close">&times;</button>
             </div>
-            <form action="register.php" method="POST" data-validate>
-                <div class="grid grid-2">
-                    <div class="form-group">
-                        <label for="first_name" class="form-label">First Name</label>
-                        <input type="text" id="first_name" name="first_name" class="form-input" required>
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                Demo mode - Registration functionality is not available
+            </div>
+            <form>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="reg_first_name" class="form-label">First Name *</label>
+                            <input type="text" id="reg_first_name" name="first_name" class="form-control" value="John">
+                        </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="last_name" class="form-label">Last Name</label>
-                        <input type="text" id="last_name" name="last_name" class="form-input" required>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="reg_last_name" class="form-label">Last Name *</label>
+                            <input type="text" id="reg_last_name" name="last_name" class="form-control" value="Doe">
+                        </div>
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="email" class="form-label">Email Address</label>
-                    <input type="email" id="email" name="email" class="form-input" required>
+                    <label for="reg_dob" class="form-label">Date of Birth *</label>
+                    <input type="date" id="reg_dob" name="date_of_birth" class="form-control" value="1990-01-01">
                 </div>
                 
                 <div class="form-group">
-                    <label for="phone" class="form-label">Phone Number (Optional)</label>
-                    <input type="tel" id="phone" name="phone" class="form-input">
-                </div>
-                
-                <div class="form-group">
-                    <label for="date_of_birth" class="form-label">Date of Birth</label>
-                    <input type="date" id="date_of_birth" name="date_of_birth" class="form-input" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="security_question" class="form-label">Security Question</label>
-                    <select id="security_question" name="security_question" class="form-select" required>
+                    <label for="reg_security_question" class="form-label">Security Question *</label>
+                    <select id="reg_security_question" name="security_question_id" class="form-control form-select">
                         <option value="">Choose a security question...</option>
-                        <?php foreach ($security_questions as $question): ?>
-                        <option value="<?php echo sanitizeOutput($question); ?>">
-                            <?php echo sanitizeOutput($question); ?>
-                        </option>
+                        <?php foreach ($mockSecurityQuestions as $question): ?>
+                            <option value="<?php echo $question['question_id']; ?>" <?php echo $question['question_id'] == 1 ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($question['question_text']); ?>
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 
                 <div class="form-group">
-                    <label for="security_answer" class="form-label">Security Answer</label>
-                    <input type="text" id="security_answer" name="security_answer" class="form-input" required>
+                    <label for="reg_security_answer" class="form-label">Security Answer *</label>
+                    <input type="text" id="reg_security_answer" name="security_answer" class="form-control" value="Buddy">
                 </div>
                 
-                <div class="grid grid-2">
-                    <div class="form-group">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" id="password" name="password" class="form-input" required>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="reg_password" class="form-label">Password *</label>
+                            <input type="password" id="reg_password" name="password" class="form-control" value="SecurePass123!">
+                            <div id="password-strength" class="mt-1"></div>
+                        </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="confirm_password" class="form-label">Confirm Password</label>
-                        <input type="password" id="confirm_password" name="confirm_password" class="form-input" required>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="reg_confirm_password" class="form-label">Confirm Password *</label>
+                            <input type="password" id="reg_confirm_password" name="confirm_password" class="form-control" value="SecurePass123!">
+                        </div>
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label style="display: flex; align-items: center; gap: var(--spacing-sm);">
-                        <input type="checkbox" name="terms_consent" required>
-                        I agree to the <a href="#" target="_blank">Terms of Service</a> and 
-                        <a href="#" target="_blank">Privacy Policy</a>
-                    </label>
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="terms_agreement" name="terms_agreement" class="checkbox" checked>
+                        <label for="terms_agreement">
+                            I agree to the <a href="#" target="_blank">Terms of Service</a> and 
+                            <a href="#" target="_blank">Privacy Policy</a> *
+                        </label>
+                    </div>
                 </div>
                 
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary btn-large" style="width: 100%;">
-                        <i class="fas fa-user-plus"></i> Create Account
+                    <button type="button" class="btn btn-primary w-100" onclick="OUTSINC.showAlert('Demo mode - Registration not available', 'info')">
+                        <i class="fas fa-user-plus"></i>
+                        Create Account (Demo)
                     </button>
                 </div>
             </form>
         </div>
     </div>
-
-    <!-- Forgot Password Modal -->
-    <div id="forgotPasswordModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Reset Password</h3>
-                <button class="modal-close">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <form action="forgot-password.php" method="POST" data-validate>
-                <div class="form-group">
-                    <label for="forgot_username" class="form-label">Username</label>
-                    <input type="text" id="forgot_username" name="username" class="form-input" required>
-                </div>
-                
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary btn-large" style="width: 100%;">
-                        <i class="fas fa-key"></i> Get Security Question
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <?php endif; ?>
 
     <!-- JavaScript -->
     <script src="assets/js/main.js"></script>
+    
+    <!-- Additional CSS for theme toggle -->
+    <style>
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+            margin-left: 1rem;
+        }
+
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--neu-light);
+            border-radius: 30px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px;
+            box-shadow: 
+                inset 4px 4px 8px var(--neu-shadow-dark),
+                inset -4px -4px 8px var(--neu-shadow-light);
+        }
+
+        .slider i {
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .slider .fa-sun {
+            color: #FFD700;
+        }
+
+        .slider .fa-moon {
+            color: #4A5568;
+        }
+
+        input:checked + .slider {
+            background: var(--primary-blue);
+        }
+
+        input:checked + .slider .fa-sun {
+            opacity: 0.3;
+        }
+
+        input:checked + .slider .fa-moon {
+            opacity: 1;
+            color: #E2E8F0;
+        }
+
+        input:not(:checked) + .slider .fa-sun {
+            opacity: 1;
+        }
+
+        input:not(:checked) + .slider .fa-moon {
+            opacity: 0.3;
+        }
+
+        .w-100 {
+            width: 100%;
+        }
+    </style>
 </body>
 </html>
