@@ -3190,3 +3190,366 @@ Attachment Section
 * Add Photos: (Optional — for living condition documentation)
 See less
 Tokens:
+
+
+
+
+
+OUTSINC — Standard Operating Procedures (SOP)
+
+This master document provides ten distinct, fully-detailed SOP configurations for OUTSINC. Each configuration is intentionally unique in emphasis, workflow, and artifacts, while remaining interoperable with the shared OUTSINC platform (PHP + SQL stack; role-based access; consent-gated intake; trauma‑informed, mobile-first UI). Use a single configuration end‑to‑end, or mix modules across configurations as needed.
+
+Shared platform assumptions (applies to all configurations unless noted):
+
+Gatekeeping event: Documents.Signed must fire before unlocked Intake.
+
+Roles: anonymous, client, staff, admin, service.
+
+Privacy: PIPEDA/PHIPA-aligned; consent is granular and revocable.
+
+Data store (baseline tables): users, roles, consents, documents, client_profiles, intakes, assessments, needs_survey, tasks, appointments, messages, referrals, supplies_orders, supplies_items, outreach_visits, incidents, audit_log, kpi_rollups.
+
+UI/UX: modal registration/login/forgot flows; traffic‑light scoring; accessibility toggles; resource tiles on Client dashboard; admin demo data available.
+
+
+
+
+⸻
+
+🌐 OUTSINC Navigation Menu Structure
+
+1. Home
+	•	Landing Page → Hero section, quick CTAs, featured apps.
+	•	Scrolling Marquee with live updates/events.
+
+⸻
+
+2. About Us
+	•	Who We Are – Mission, Vision, Values, Team bios with photos ￼.
+	•	Our Story – Founding history & impact timeline.
+	•	Goals & Objectives – Clear roadmap for change.
+	•	Success Stories – Client wins & community highlights.
+	•	Contact Us – Phone, email, socials.
+
+⸻
+
+3. Get Help (Primary CTA section for service users)
+	•	Self-Refer / Apply for Services – Smart intake form.
+	•	Resource Directory – Local agencies, hotlines ￼.
+	•	Book an Appointment – Online scheduling for outreach, MOMCARE, or groups.
+	•	Request Supplies – Harm reduction, food, daily living needs.
+
+⸻
+
+4. Our Platforms (Showcases all apps)
+	•	MOMCARE – Care coordination for parents & families.
+	•	DC1D3 ASK – AI/live help assistant.
+(Each opens an app-specific landing page with “Launch App” button.)
+
+⸻
+
+5. Community & Engagement
+	•	Partner With Us – Collaboration form for businesses/orgs.
+	•	News & Updates – Blog or newsletter archive.
+
+⸻
+
+6. For Businesses/Public
+	•	Report an Issue – Incident, cleanup, or welfare check request.
+	•	Book Specialty Services – Delivery, cleaning, pet sitting, etc. ￼.
+
+⸻
+
+
+9. Client Portal / Login (Far right, button-style)
+	•	Sign In / Register – Role-based access (client, staff, service provider, admin).
+
+⸻
+
+🔹 Design & Usability Tips for Menu
+	•	Use drop-down menus for sub-items (desktop), accordion-style menus for mobile.
+	•	Keep Donate and Get Help in button styling for quick action.
+	•	Add small icons beside each menu item for fast recognition.
+	•	Sticky top-bar on scroll with compact mode for mobile.
+	•	On mobile, make the first two menu items Get Help and Donate for quick access.
+
+
+
+
+
+
+
+
+
+Registration Modal
+	•	Fields:
+	•	First Name ✅
+	•	Last Name ✅
+	•	Date of Birth ✅
+	•	Security Question (dropdown) ✅
+	•	Answer to Security Question ✅
+	•	Password + Confirm ✅
+	•	☑️ Checkbox: “I agree to the Terms of Service” → opens modal with full terms
+	•	✅ Auto-generates username (e.g., MICBRO8406)
+	•	✅ Auto-approves new client
+
+⸻
+
+
+🧠 Post-Registration Flow
+	1.	Welcome Modal:
+	•	“Thank you for registering! Your username is: MICBRO8406 — write this down.”
+	2.	Force redirect to Needs Assessment
+	•	Must complete multi-step intake with progress bar
+	•	All questions optional
+	•	Staff notified upon completion
+	3.	Then → Access to dashboard
+	4.	Can go back and edit responses later
+
+
+
+⸻
+
+🛠️ Forgot Flows
+	•	Forgot Username:
+	•	Inputs: First Name + Last Name + DOB
+	•	Submission-only (no AJAX)
+	•	Output: Generated Username
+	•	Forgot Password:
+	•	Input: Username
+	•	Show their selected security question
+	•	If answered correctly: Set new password + auto-login
+
+
+
+
+
+
+
+
+=== CLIENT WORKFLOW FOR REGISTERING --------
+
+
+
+1) Create Account
+	•	Fields:
+	•	First Name ✅
+	•	Last Name ✅
+	•	Date of Birth ✅
+	•	Security Question (dropdown) ✅
+	•	Answer to Security Question ✅
+	•	Password + Confirm ✅
+	•	☑️ Checkbox: “I agree to the Terms of Service” → opens modal with full terms
+	•	✅ Auto-generates username (e.g., MICBRO8406)
+	•	✅ Auto-approves new client
+	•	Button: “Create my account”
+
+2) Platform Consent (required)
+	•	Summary: “You’re authorizing OUTSINC to work with you (support, planning, keeping records). This does not share your info with outside organizations.”
+	•	Checkbox (required): “I consent to OUTSINC supporting me.”
+	•	Buttons: “I Consent” (primary), “View full policy” (link).
+
+3) Welcome Tour (5 quick cards)
+	•	Card 1: Dashboard 101 — “Your tasks live here (Needs Assessment first).”
+	•	Card 2: Privacy & Sharing — “Only you and your team see your info. We’ll ask you each time before sharing with any outside provider.”
+	•	Card 3: Messages & Chat — “Ask questions, get updates, or start a live chat.”
+	•	Card 4: Assessments — “All questions are optional; you can skip or return later.”
+	•	Card 5: Accessibility — “Dark/light, high-contrast, bigger text, Dyslexia-friendly font.”
+	•	Button on each: “Next”, final: “Finish tour” (don’t show again).
+
+4) Land on Client Dashboard
+	•	Top banner (if tasks due): “You’ve got tasks waiting—start your Needs Assessment.”
+	•	Task #1 pinned: “Start Needs Assessment” (primary button).
+
+
+
+4. Client Dashboard
+	•	Welcome header with client’s name
+	•	Widgets:
+	•	✅ Intake Progress
+	•	📆 Appointments
+	•	📂 Uploaded Docs
+	•	📩 Messages
+	•	🎯 Goals
+	•	📜 Survey links
+	•	🔄 Theme picker, dark mode, etc.
+	•	Client can:
+	•	Continue intake
+	•	Book appointments
+	•	Message staff
+	•	View support plan
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	----------
+	STAFF  AND OUTREACH WORKER   SETUP AND USAFE BELOW
+
+
+
+
+
+
+) Staff Case Manager Dashboard
+
+URL: /dashboard/staff.php
+
+What the staff sees
+	1.	Triage Queue
+	•	New clients with Documents.Signed, “Ready for Intake” badge.
+	•	Chips: risk (RED/AMBER), last contact, creator (front desk/outreach).
+	2.	Red-Zone Watchlist
+	•	Clients with any Red domain; quick actions: Start Intake, Start Care Plan, Book Visit.
+	3.	My Caseload (filterable)
+	•	Cards with client name/alias, status chips, next activity, overdue items.
+	4.	Intakes in Progress
+	•	Who’s editing; Resume or “Request control” (soft lock).
+	5.	Tasks Today
+	•	Assigned to me; due/overdue; bulk complete.
+	6.	Appointments Today
+	•	Arrival status (arrived/no-show/late); one-tap note templates.
+	7.	Referrals Pending
+	•	Warm-handoff confirmations; “Nudge partner/client.”
+	8.	KPI Strip
+	•	This week: intakes completed, Red→Yellow conversions, follow-ups due.
+
+Staff workflows
+
+A. New client just created (or walked in)
+	1.	From Triage Queue → open card → Start Consent (if not done) → auto-fires Documents.Signed.
+	2.	Start Intake immediately (or assign to later).
+	3.	Finish Intake → Traffic-Light Summary appears → Generate Care Plan (draft with 1–3 suggested goals).
+	4.	Add tasks, schedule follow-up; document warm handoffs.
+
+B. Managing caseload day-to-day
+	1.	Filter Red-Zone Watchlist → contact top 3 risk clients.
+	2.	Work Tasks Today → document interactions (modal notes).
+	3.	Check Referrals Pending → confirm contact occurred.
+	4.	End of day: glance KPI Strip and Intakes in Progress (close loops).
+
+C. Crisis triggers (from any page)
+	•	If a note/intake answer flags risk → “Open Incident” (modal), safety steps, warm transfer, schedule debrief; incident banner follows the client.
+
+Entry points to Intake
+	•	New Client success screen, Client Profile header, Triage Queue, Intakes in Progress.
+
+
+
+
+
+
+
+
+	3) Front Desk Dashboard
+
+URL: /dashboard/frontdesk.php
+
+What front desk sees
+	1.	Create New Client (fast card)
+	•	Name/alias, DOB (optional), contact, staff owner, quick note.
+	2.	Check-In Queue
+	•	Today’s appointments; mark arrived/no-show; print/SMS ticket with room or wait time.
+	3.	Consent Station / Kiosk Mode
+	•	Launch consent on this device (signature pad) or generate QR/SMS link.
+	4.	Document Capture
+	•	Scan/photo: IDs, releases; auto-store in documents; associate to client.
+	5.	Walk-In Slots
+	•	Available staff; expected wait; “book walk-in for X” → notify staff.
+	6.	Service Directory Quick Links
+	•	Shelter access, harm reduction hours—so desk can answer common Qs fast.
+
+Front desk workflows
+
+A. Walk-in
+	1.	Create New Client quickly (or search existing).
+	2.	Launch Consent on tablet → capture signature → Documents.Signed.
+	3.	Start Intake Now (if staff ready) or Text Intake Link to client for later.
+	4.	Add to Check-In Queue; mark arrived and assign to staff.
+
+B. Busy morning with bookings
+	1.	Open Check-In Queue → mark arrivals; print/SMS tickets.
+	2.	If client forgot consent → Launch Consent; hand back to staff to continue intake.
+	3.	Capture documents while client waits (ID photo, releases).
+
+C. Kiosk mode setup
+	•	Toggle Kiosk Mode → screen locks to welcome + QR; clients self-start registration/consent; front desk monitors progress bar.
+
+Entry points to Intake
+	•	Post-consent chain (“Start Intake Now”), or send link; staff can pick up later from Triage Queue.
+
+⸻
+
+4) Outreach Worker Dashboard
+
+URL: /dashboard/outreach.php
+
+What outreach sees
+	1.	Shift Panel
+	•	Start/End shift timer, radio check, safety buddy indicator.
+	•	Offline mode status (PWA), last sync time.
+	2.	Quick Add Contact (≤60 seconds)
+	•	Alias, micro-consent toggles (OK to contact? OK to note alias?), immediate needs checkboxes.
+	3.	Supplies Order
+	•	Tile picker (needles, pipes, swabs, naloxone, wound care); Immediate Handoff or Schedule Delivery.
+	4.	Follow-Ups Today
+	•	Map + list with time windows and notes; tap to call/SMS.
+	5.	Incidents & Safety Notes
+	•	Open/resolve; “preventive note” quick template (e.g., unsafe camp entrance).
+	6.	Resource Cards
+	•	Local hours (showers, laundry, meals) with quick directions.
+
+Outreach workflows
+
+A. Start of shift
+	1.	Hit Start Shift → safety buddy confirmed.
+	2.	Review Follow-Ups Today; pick the route.
+	3.	Load Supplies Order inventory check.
+
+B. Field contact
+	1.	Use Quick Add Contact (alias) + micro-consent toggles.
+	2.	Offer Supplies (Immediate Handoff).
+	3.	If person is open: Send Intake Link (magic SMS) or set office appointment (front desk notified).
+	4.	Log any risks as Preventive Safety Note; if crisis → Open Incident and follow protocol.
+
+C. End of shift
+	1.	End Shift → data sync; unresolved items → push to Staff Triage Queue.
+	2.	Brief debrief note for supervisor.
+
+Entry points to Intake
+	•	Magic link (client starts later), or warm handoff appointment so staff begin intake at office.
+
+⸻
+
+Widget catalog (quick reference)
+	•	Traffic-Light Summary (all roles except front desk; read-only for some).
+	•	Start/Resume Intake (client/staff/front desk; outreach sends link).
+	•	Care Plan (client/staff read/write; progress rings, updates modal).
+	•	Triage Queue (staff/front desk): “Ready for Intake”, timer since consent.
+	•	Red-Zone Watchlist (staff): auto-sorted by risk and time since contact.
+	•	Tasks Today (client/staff): checkboxes; bulk complete for staff.
+	•	Appointments (all roles except outreach; outreach sees follow-ups).
+	•	Referrals Pending (staff): confirm warm handoffs.
+	•	Consent Station (front desk): signature capture, QR/SMS options.
+	•	Shift Panel (outreach): timer, safety buddy, offline indicator.
+	•	Supplies Order (outreach/staff): immediate vs. scheduled delivery.
+	•	Documents (client/staff/front desk): upload/scan, download consent.
+
+⸻
+
+How each role reaches the Client Intake (at a glance)
+	•	Client: primary button on dashboard → intake/resume.php (tokenized); also portal tile; also SMS link.
+	•	Staff: from New Client success, Client Profile header, Triage Queue, Intakes in Progress.
+	•	Front Desk: after Consent Station (“Start Intake Now” on same device) or send link.
+	•	Outreach: Send Intake Link (SMS magic link) or schedule office visit (front desk notifies staff).
+
+⸻
