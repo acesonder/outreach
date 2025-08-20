@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/acesonder/outreach/blob/main/SYSTEM_DOCUMENTATION.md
+    about: Check the system documentation for technical details and troubleshooting
+  - name: 🚀 Setup Guide
+    url: https://github.com/acesonder/outreach/blob/main/README_SETUP.md
+    about: Follow the setup guide for installation and configuration
