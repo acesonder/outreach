@@ -167,6 +167,18 @@ This project follows these principles:
 - **Clean, readable code** with inline documentation
 - **Mobile-first** responsive design
 
+### 📝 Issue Templates
+
+When creating issues, please use the appropriate template:
+- **🐛 Bug Report** - For reporting bugs or system issues
+- **✨ Feature Request** - For suggesting new functionality
+- **🔧 Enhancement** - For improving existing features
+- **❓ Question/Support** - For getting help or asking questions
+- **🏗️ Platform-Specific** - For issues specific to DCIDE, LINK, BLES, ASK, ETHAN, or FOOTPRINT platforms
+- **🔒 Security** - For reporting security vulnerabilities (use responsibly)
+
+Each template includes OUTSINC-specific context to help provide better, more actionable issue reports.
+
 ## 📧 Support
 
 - Technical Documentation: See `SYSTEM_DOCUMENTATION.md`
